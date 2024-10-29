@@ -1,4 +1,4 @@
-local cmp = require('cmp')
+local cmp = require("cmp")
 
 local source = {}
 
@@ -9,7 +9,7 @@ source.new = function()
 end
 
 source.is_available = function()
-  return vim.bo.filetype == 'lua' or vim.bo.filetype == 'vim' or vim.bo.filetype == "fennel"
+  return vim.bo.filetype == "lua" or vim.bo.filetype == "vim" or vim.bo.filetype == "fennel"
 end
 
 source.get_keyword_pattern = function()
@@ -17,7 +17,7 @@ source.get_keyword_pattern = function()
 end
 
 source.get_trigger_characters = function()
-  return { '.' }
+  return { "." }
 end
 
 source.complete = function(self, request, callback)
@@ -27,9 +27,12 @@ source.complete = function(self, request, callback)
   end
   local items = self:items(string.sub(request.context.cursor_before_line, s + 1, e))
   if not request.option.include_deprecated then
-    items = vim.iter(items):filter(function (item)
-      return not item.label:match('^_')
-    end):totable()
+    items = vim
+      .iter(items)
+      :filter(function(item)
+        return not item.label:match("^_")
+      end)
+      :totable()
   end
   callback({
     items = items,
@@ -39,23 +42,23 @@ end
 source.items = function(self, path)
   local target = _G
   local target_keys = vim.tbl_keys(_G)
-  for _, name in ipairs(vim.split(path, '.', true)) do
-    if vim.tbl_contains(target_keys, name) and type(target[name]) == 'table' then
+  for _, name in ipairs(vim.split(path, ".", true)) do
+    if vim.tbl_contains(target_keys, name) and type(target[name]) == "table" then
       target = target[name]
       target_keys = vim.tbl_keys(target)
-    elseif name ~= '' then
+    elseif name ~= "" then
       return {}
     end
   end
 
   local candidates = {}
   for _, key in ipairs(target_keys) do
-    if string.match(key, '^%a[%a_]*$') then
+    if string.match(key, "^%a[%a_]*$") then
       table.insert(candidates, self:item(key, target[key]))
     end
   end
   for _, key in ipairs(target_keys) do
-    if not string.match(key, '^%a[%a_]*$') then
+    if not string.match(key, "^%a[%a_]*$") then
       table.insert(candidates, self:item(key, target[key]))
     end
   end
@@ -68,17 +71,17 @@ source.item = function(_, key, value)
 
   local kind = cmp.lsp.CompletionItemKind.Field
   local t = type(value)
-  if t == 'function' then
+  if t == "function" then
     kind = cmp.lsp.CompletionItemKind.Function
-  elseif t == 'table' then
+  elseif t == "table" then
     kind = cmp.lsp.CompletionItemKind.Struct
-  elseif t == 'string' then
+  elseif t == "string" then
     kind = cmp.lsp.CompletionItemKind.Value
-  elseif t == 'boolean' then
+  elseif t == "boolean" then
     kind = cmp.lsp.CompletionItemKind.Value
-  elseif t == 'number' then
+  elseif t == "number" then
     kind = cmp.lsp.CompletionItemKind.Value
-  elseif t == 'nil' then
+  elseif t == "nil" then
     kind = cmp.lsp.CompletionItemKind.Value
   end
   return {
